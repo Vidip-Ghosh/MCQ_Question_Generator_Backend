@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
@@ -8,6 +9,7 @@ import requests
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 PAT = os.environ["PAT"]
 USER_ID = os.environ["USER_ID"]
