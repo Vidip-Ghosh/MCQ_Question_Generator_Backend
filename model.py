@@ -4,6 +4,7 @@ from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
 import os
 from dotenv import load_dotenv
+import requests
 load_dotenv()
 
 app = Flask(__name__)
@@ -61,6 +62,23 @@ def complete():
     completion = output.data.text.raw
 
     return jsonify({'completion': completion})
+
+@app.route('/summarize', methods=['POST'])
+def summarize():
+    data = request.json
+    text = data.get('text')
+
+    def query(data):
+        API_URL = "https://api-inference.huggingface.co/models/philschmid/bart-large-cnn-samsum"
+        headers = {"Authorization": "Bearer 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"}
+        response = requests.post(API_URL, headers=headers, json={"inputs": data})
+        result = response.json()
+        print(result)
+        return result
+
+    summarised_text = query(text)
+
+    return jsonify(summarised_text)
 
 if __name__ == '__main__':
     app.run(debug=True)
