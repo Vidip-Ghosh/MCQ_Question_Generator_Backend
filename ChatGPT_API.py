@@ -2,14 +2,19 @@ from flask import Flask, request, jsonify
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
-PAT = '65bf3f1ed0ce4d7f83412c32847d91d2'
-USER_ID = 'openai'
-APP_ID = 'chat-completion'
-MODEL_ID = 'gpt-4-turbo'
-MODEL_VERSION_ID = '182136408b4b4002a920fd500839f2c8'
+PAT = os.environ["PAT"]
+USER_ID = os.environ["USER_ID"]
+APP_ID = os.environ['APP_ID']
+MODEL_ID = os.environ['MODEL_ID']
+MODEL_VERSION_ID = os.environ['MODEL_VERSION_ID']
+
+print(PAT, USER_ID, APP_ID, MODEL_ID, MODEL_VERSION_ID)
 
 channel = ClarifaiChannel.get_grpc_channel()
 stub = service_pb2_grpc.V2Stub(channel)
