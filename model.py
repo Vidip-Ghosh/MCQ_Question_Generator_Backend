@@ -6,6 +6,9 @@ from clarifai_grpc.grpc.api.status import status_code_pb2
 import os
 from dotenv import load_dotenv
 import requests
+import re
+import json
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -63,7 +66,38 @@ def complete():
     output = post_model_outputs_response.outputs[0]
     completion = output.data.text.raw
 
-    return jsonify({'completion': completion})
+    completion = completion.replace("\n", " ")
+    
+    sentences = re.split(r'(?<=[.!?])\s+', completion)
+
+    # Extracting questions and options
+    questions = []
+    options = []
+    for sentence in sentences:
+        if sentence.endswith('?'):
+            questions.append(sentence)
+        elif re.search(r'\b[A-D]\)', sentence):
+            options.append(sentence)
+    regex = r"([a-zA-Z]+) (\d+)"
+    match = re.search(r"Answers:", completion)
+    # print("Answers: ",match)
+    answers_section = match.groups()
+    keyword = 'Answers:'
+    before_keyword, keyword, after_keyword = completion.partition(keyword)
+
+    answers_array = after_keyword.split('\n')
+    print(answers_array)
+
+    print("Questions:")
+    data = []
+    for i, q in enumerate(questions, 1):
+        data.append({
+            "Question": q,
+            "Options": options[i-1],
+            # "Answer": answers_array
+        })
+    json_data = json.dumps(data, indent=4)
+    return json_data
 
 @app.route('/summarize', methods=['POST'])
 def summarize():
